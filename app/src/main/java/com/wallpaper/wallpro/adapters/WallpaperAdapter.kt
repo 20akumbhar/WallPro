@@ -14,26 +14,25 @@ import com.wallpaper.wallpro.models.Wallpaper
 
 class WallpaperAdapter(val context: Context, private val wallpaperList: MutableList<Wallpaper>) : RecyclerView.Adapter<WallpaperAdapter.WallViewHolder>() {
 
-    inner class WallViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-
-    }
+    inner class WallViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WallViewHolder {
-        var view: View =
+        val view =
             LayoutInflater.from(parent.context).inflate(R.layout.wallpaper_item, parent, false)
         return WallViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: WallViewHolder, position: Int) {
-        var imageView = holder.itemView.findViewById<ImageView>(R.id.wall_imageView)
+        val imageView = holder.itemView.findViewById<ImageView>(R.id.wall_imageView)
         imageView.clipToOutline = true
-        var url=wallpaperList[position].thumbnail
+        val url=wallpaperList[position].thumbnail
         Glide.with(context)
             .load(url)
             .centerCrop()
             .into(imageView)
         imageView.setOnClickListener {
-            var intent:Intent= Intent(context, WallpaperActivity::class.java)
+            val intent = Intent(context, WallpaperActivity::class.java)
+            intent.putExtra("url",wallpaperList[position].image)
             context.startActivity(intent)
         }
     }

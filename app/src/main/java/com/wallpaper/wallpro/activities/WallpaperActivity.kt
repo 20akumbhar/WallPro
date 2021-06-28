@@ -25,6 +25,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.swiperefreshlayout.widget.CircularProgressDrawable
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.DiskCacheStrategy
@@ -69,14 +70,20 @@ class WallpaperActivity : AppCompatActivity() {
         downloadWallpaperButton = findViewById(R.id.wallapaper_download_button)
         favoriteWallpaperButton = findViewById(R.id.wallpaper_favorite_btn)
 
-
-        val url = "https://source.unsplash.com/1100x2000/"
+val circularProgressDrawable=CircularProgressDrawable(this)
+        circularProgressDrawable.apply {
+            backgroundColor=R.color.white
+            strokeWidth=5f
+            centerRadius=30f
+            start()
+        }
+        val url = intent.getStringExtra("url")
         Glide.with(this)
             .load(url)
-            .placeholder(R.drawable.placeholder)
+            .placeholder(circularProgressDrawable)
             .error(R.drawable.error)
             .timeout(10000)
-            .diskCacheStrategy(DiskCacheStrategy.NONE)
+            .diskCacheStrategy(DiskCacheStrategy.ALL)
             .listener(object : RequestListener<Drawable> {
                 override fun onLoadFailed(
                     e: GlideException?,
