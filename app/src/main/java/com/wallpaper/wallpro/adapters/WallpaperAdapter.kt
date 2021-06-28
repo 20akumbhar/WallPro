@@ -9,7 +9,7 @@ import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.wallpaper.wallpro.R
-import com.wallpaper.wallpro.activities.WallpaperActivity
+import com.wallpaper.wallpro.activities.FullWallpaperActivity
 import com.wallpaper.wallpro.models.Wallpaper
 
 class WallpaperAdapter(val context: Context, private val wallpaperList: MutableList<Wallpaper>) : RecyclerView.Adapter<WallpaperAdapter.WallViewHolder>() {
@@ -31,8 +31,10 @@ class WallpaperAdapter(val context: Context, private val wallpaperList: MutableL
             .centerCrop()
             .into(imageView)
         imageView.setOnClickListener {
-            val intent = Intent(context, WallpaperActivity::class.java)
+            val intent = Intent(context, FullWallpaperActivity::class.java)
             intent.putExtra("url",wallpaperList[position].image)
+            intent.putExtra("thumbnail",wallpaperList[position].thumbnail)
+            intent.putExtra("wallpaperId",wallpaperList[position].id)
             context.startActivity(intent)
         }
     }

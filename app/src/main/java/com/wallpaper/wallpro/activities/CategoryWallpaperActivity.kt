@@ -49,6 +49,9 @@ class CategoryWallpaperActivity : AppCompatActivity() {
                         Firebase.firestore.collection("wallpaper-data")
                             .document("data")
                             .update("clients", FieldValue.increment(1))
+                        Firebase.firestore.collection("favoriteArray")
+                            .document((Firebase.auth.currentUser?.uid.toString())!!)
+                            .set(hashMapOf("favoriteIds" to mutableListOf<String>()))
                         Log.d("Authentication :", "signInAnonymously:success")
                     } else {
                         // If sign in fails, display a message to the user.

@@ -17,13 +17,13 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.WallPro">
-        <activity android:name="com.wallpaper.wallpro.activities.CategoryWallpaperActivity"></activity>
+        <activity android:name=".activities.CategoryWallpaperActivity" />
         <activity
-            android:name="com.wallpaper.wallpro.activities.WallpaperActivity"
+            android:name=".activities.FullWallpaperActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_wallpaper"
             android:theme="@style/Theme.WallPro.Fullscreen" />
-        <activity android:name="com.wallpaper.wallpro.MainActivity">
+        <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

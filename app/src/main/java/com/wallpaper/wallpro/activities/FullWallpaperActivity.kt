@@ -49,17 +49,19 @@ import java.io.FileOutputStream
 import java.io.IOException
 
 
-class WallpaperActivity : AppCompatActivity() {
+class FullWallpaperActivity : AppCompatActivity() {
     private lateinit var wallpaperImageView: ImageView
     private lateinit var setWallpaperButton: ImageButton
     private lateinit var downloadWallpaperButton: ImageButton
     private lateinit var favoriteWallpaperButton: SparkButton
-
+    private var favoriteArray = mutableListOf<String>()
     private lateinit var permissionsLauncher: ActivityResultLauncher<Array<String>>
 
     private var readPermissionGranted = false
     private var writePermissionGranted = false
-
+    private var imageUrl: String = ""
+    private var thumbnail: String = ""
+    private var wallpaperId: String = ""
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN
@@ -70,16 +72,18 @@ class WallpaperActivity : AppCompatActivity() {
         downloadWallpaperButton = findViewById(R.id.wallapaper_download_button)
         favoriteWallpaperButton = findViewById(R.id.wallpaper_favorite_btn)
 
-val circularProgressDrawable=CircularProgressDrawable(this)
+        val circularProgressDrawable = CircularProgressDrawable(this)
         circularProgressDrawable.apply {
-            backgroundColor=R.color.white
-            strokeWidth=5f
-            centerRadius=30f
+            backgroundColor = R.color.white
+            strokeWidth = 5f
+            centerRadius = 30f
             start()
         }
-        val url = intent.getStringExtra("url")
+        imageUrl = intent.getStringExtra("url")!!
+        thumbnail = intent.getStringExtra("thumbnail")!!
+        wallpaperId = intent.getStringExtra("wallpaperId")!!
         Glide.with(this)
-            .load(url)
+            .load(imageUrl)
             .placeholder(circularProgressDrawable)
             .error(R.drawable.error)
             .timeout(10000)
@@ -111,6 +115,25 @@ val circularProgressDrawable=CircularProgressDrawable(this)
             .centerCrop()
             .into(wallpaperImageView)
 
+
+        Firebase.firestore.collection("favoriteArray")
+            .document(Firebase.auth.currentUser!!.uid)
+            .addSnapshotListener { snapshot, e ->
+                if (e != null) {
+                    return@addSnapshotListener
+                }
+
+                if (snapshot != null && snapshot.exists()) {
+                    favoriteArray = snapshot["favoriteIds"] as MutableList<String>
+                    val index=favoriteArray.indexOf(wallpaperId)
+                    if (index>-1){
+                        favoriteWallpaperButton.isChecked=true
+                    }
+                } else {
+                    Log.d("firebase :", "Current data: null")
+                }
+            }
+
         permissionsLauncher =
             registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
                 readPermissionGranted =
@@ -126,7 +149,7 @@ val circularProgressDrawable=CircularProgressDrawable(this)
                 updateOrRequestPermissions()
                 Glide.with(this)
                     .asBitmap()
-                    .load(url)
+                    .load(imageUrl)
                     .diskCacheStrategy(DiskCacheStrategy.NONE)
                     .into(object : CustomTarget<Bitmap>() {
                         override fun onResourceReady(
@@ -140,20 +163,20 @@ val circularProgressDrawable=CircularProgressDrawable(this)
                                 )
                                 if (result) {
                                     Toast.makeText(
-                                        this@WallpaperActivity,
+                                        this@FullWallpaperActivity,
                                         "Wallpaper Downloaded",
                                         Toast.LENGTH_SHORT
                                     ).show()
                                 } else {
                                     Toast.makeText(
-                                        this@WallpaperActivity,
+                                        this@FullWallpaperActivity,
                                         "Something went wrong",
                                         Toast.LENGTH_SHORT
                                     ).show()
                                 }
                             } else {
                                 val intent = Intent(Intent.ACTION_VIEW)
-                                val uri: Uri? = savewallpaperAndGeturi(
+                                val uri: Uri? = saveWallpaperAndGeturi(
                                     resource,
                                     System.currentTimeMillis().toString()
                                 )
@@ -162,7 +185,7 @@ val circularProgressDrawable=CircularProgressDrawable(this)
                                     startActivity(intent)
                                 } else {
                                     Toast.makeText(
-                                        this@WallpaperActivity,
+                                        this@FullWallpaperActivity,
                                         "null uri",
                                         Toast.LENGTH_SHORT
                                     ).show()
@@ -201,8 +224,41 @@ val circularProgressDrawable=CircularProgressDrawable(this)
             override fun onEvent(button: ImageView, buttonState: Boolean) {
                 if (buttonState) {
                     // Button is active
+                    val wallpaper = hashMapOf(
+                        "image" to imageUrl,
+                        "thumbnail" to thumbnail,
+                        "userId" to (Firebase.auth.currentUser?.uid ?: ""),
+                        "wallpaperId" to wallpaperId,
+                        "timestamp" to FieldValue.serverTimestamp()
+                    )
+                    Firebase.firestore.collection("favorites")
+                        .add(
+                            wallpaper
+                        ).addOnSuccessListener { documentReference ->
+                            Firebase.firestore.collection("favoriteArray")
+                                .document(Firebase.auth.currentUser!!.uid)
+                                .update("favoriteIds", FieldValue.arrayUnion(wallpaperId))
+                            Log.d(
+                                "firebase :",
+                                "DocumentSnapshot written with ID: ${documentReference.id}"
+                            )
+                        }
+                        .addOnFailureListener { _ ->
+                            favoriteWallpaperButton.isChecked = false
+                            Toast.makeText(
+                                this@FullWallpaperActivity,
+                                "Not added to favorite",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+
                 } else {
                     // Button is inactive
+                    Toast.makeText(
+                        this@FullWallpaperActivity,
+                        "will not be favorite",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
 
@@ -216,10 +272,10 @@ val circularProgressDrawable=CircularProgressDrawable(this)
 
     }
 
-    private fun savewallpaperAndGeturi(bitmap: Bitmap, id: String): Uri? {
+    private fun saveWallpaperAndGeturi(bitmap: Bitmap, id: String): Uri? {
         val intent = Intent()
         intent.action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
-        val uri = Uri.fromParts("package", this@WallpaperActivity.packageName, "this")
+        val uri = Uri.fromParts("package", this@FullWallpaperActivity.packageName, "this")
         intent.data = uri
         startActivity(intent)
 
@@ -234,16 +290,24 @@ val circularProgressDrawable=CircularProgressDrawable(this)
             out.close()
 
             return FileProvider.getUriForFile(
-                this@WallpaperActivity,
-                BuildConfig.APPLICATION_ID+".provider",
+                this@FullWallpaperActivity,
+                BuildConfig.APPLICATION_ID + ".provider",
                 file
             )
         } catch (e: FileNotFoundException) {
-            Toast.makeText(this@WallpaperActivity, "File not found" + e.message, Toast.LENGTH_SHORT)
+            Toast.makeText(
+                this@FullWallpaperActivity,
+                "File not found" + e.message,
+                Toast.LENGTH_SHORT
+            )
                 .show()
             e.printStackTrace()
         } catch (e: IOException) {
-            Toast.makeText(this@WallpaperActivity, "IOException" + e.message, Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                this@FullWallpaperActivity,
+                "IOException" + e.message,
+                Toast.LENGTH_SHORT
+            ).show()
             e.printStackTrace()
         }
         return null
@@ -329,6 +393,9 @@ val circularProgressDrawable=CircularProgressDrawable(this)
                         Firebase.firestore.collection("wallpaper-data")
                             .document("data")
                             .update("clients", FieldValue.increment(1))
+                        Firebase.firestore.collection("favoriteArray")
+                            .document((Firebase.auth.currentUser?.uid.toString()))
+                            .set(hashMapOf("favoriteIds" to mutableListOf<String>()))
                         Log.d("Authentication :", "signInAnonymously:success")
                     } else {
                         // If sign in fails, display a message to the user.
