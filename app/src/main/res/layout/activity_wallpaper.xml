@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/frameLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black"
+    android:theme="@style/ThemeOverlay.WallPro.FullscreenContainer"
+    tools:context=".activities.WallpaperActivity">
+
+    <ImageView
+        android:id="@+id/wallpaper_mainImageView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="#54000000"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingVertical="10dp"
+        android:weightSum="3">
+
+
+        <ImageButton
+            android:id="@+id/wallapaper_download_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_weight="1"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_download" />
+
+        <ImageButton
+            android:id="@+id/wallpaper_set_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_weight="1"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_image" />
+
+        <com.varunest.sparkbutton.SparkButton
+            android:id="@+id/wallpaper_favorite_btn"
+            android:layout_width="0dp"
+            android:layout_height="36dp"
+            android:layout_marginHorizontal="16dp"
+            android:layout_weight="1"
+            android:padding="0dp"
+            app:sparkbutton_activeImage="@drawable/ic_heart_red"
+            app:sparkbutton_iconSize="36dp"
+            app:sparkbutton_inActiveImage="@drawable/ic_heart_outline"
+            app:sparkbutton_primaryColor="@color/red"
+            app:sparkbutton_secondaryColor="@color/white" />
+
+
+    </LinearLayout>
+
+</RelativeLayout>
