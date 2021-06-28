@@ -34,6 +34,7 @@ import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.target.Target
 import com.bumptech.glide.request.transition.Transition
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.ktx.firestore
@@ -47,6 +48,7 @@ import java.io.File
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.IOException
+import java.util.*
 
 
 class FullWallpaperActivity : AppCompatActivity() {
@@ -222,14 +224,40 @@ class FullWallpaperActivity : AppCompatActivity() {
 
         favoriteWallpaperButton.setEventListener(object : SparkEventListener {
             override fun onEvent(button: ImageView, buttonState: Boolean) {
-                if (buttonState) {
-                    // Button is active
+                if (!buttonState) {
+                    var wallId=""
+                    Firebase.firestore.collection("favorites")
+                        .whereEqualTo("userId",Firebase.auth.currentUser!!.uid)
+                        .whereEqualTo("wallpaperId",wallpaperId)
+                        .get()
+                        .addOnSuccessListener {
+                            for (dc in it){
+                                wallId=dc.id
+                            }
+                            Firebase.firestore.collection("favorites")
+                                .document(wallId)
+                                .delete()
+                            Firebase.firestore.collection("favoriteArray")
+                                .document(Firebase.auth.currentUser!!.uid)
+                                .update("favoriteIds", FieldValue.arrayRemove(wallpaperId))
+                        }
+
+                        .addOnFailureListener { _ ->
+                            favoriteWallpaperButton.isChecked = true
+                            Toast.makeText(
+                                this@FullWallpaperActivity,
+                                "Not removed from favorite",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+
+                } else {
                     val wallpaper = hashMapOf(
                         "image" to imageUrl,
                         "thumbnail" to thumbnail,
                         "userId" to (Firebase.auth.currentUser?.uid ?: ""),
                         "wallpaperId" to wallpaperId,
-                        "timestamp" to FieldValue.serverTimestamp()
+                        "timestamp" to Timestamp(Date())
                     )
                     Firebase.firestore.collection("favorites")
                         .add(
@@ -252,13 +280,6 @@ class FullWallpaperActivity : AppCompatActivity() {
                             ).show()
                         }
 
-                } else {
-                    // Button is inactive
-                    Toast.makeText(
-                        this@FullWallpaperActivity,
-                        "will not be favorite",
-                        Toast.LENGTH_SHORT
-                    ).show()
                 }
             }
 
