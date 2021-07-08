@@ -52,6 +52,7 @@
         app:backgroundColor="@color/black"
         app:indicatorRadius="8dp"
         app:menu="@menu/bottom_menu"
-        app:textSize="16sp" />
+        app:textSize="16sp"
+        app:itemFontFamily="@font/scriptbl"/>
 
 </RelativeLayout>

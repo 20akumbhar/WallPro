@@ -8,6 +8,15 @@
     android:background="@color/black"
     android:theme="@style/ThemeOverlay.WallPro.FullscreenContainer"
     tools:context=".activities.FullWallpaperActivity">
+    <com.github.ybq.android.spinkit.SpinKitView
+        android:id="@+id/loader"
+        android:padding="10dp"
+        android:layout_centerInParent="true"
+        app:SpinKit_Color="@color/white"
+        style="@style/SpinKitView.Large.ChasingDots"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        />
 
     <ImageView
         android:id="@+id/wallpaper_mainImageView"

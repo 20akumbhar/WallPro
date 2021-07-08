@@ -13,7 +13,6 @@ import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FieldPath
-import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.wallpaper.wallpro.R
@@ -36,8 +35,8 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        var isFirst: Boolean=true
-        progressBar=view.findViewById(R.id.home_progressbar)
+        var isFirst: Boolean = true
+        progressBar = view.findViewById(R.id.home_progressbar)
         wallpaperList = mutableListOf<Wallpaper>()
         var recyclerView: RecyclerView = view.findViewById(R.id.home_recyclerView)
         adapter = WallpaperAdapter(requireActivity(), wallpaperList)
@@ -48,7 +47,8 @@ class HomeFragment : Fragment() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
                 if (!recyclerView.canScrollVertically(View.SCROLL_INDICATOR_BOTTOM)) {
-                    loadMoreWallpapers()
+                    if (wallpaperList.size > 9)
+                        loadMoreWallpapers()
                 }
             }
         })
@@ -72,6 +72,7 @@ class HomeFragment : Fragment() {
                                     document.data["image"].toString(),
                                     document.data["thumbnail"].toString(),
                                     document.data["isPopular"] as Boolean,
+                                    document.data["isPremium"] as Boolean?,
                                     document.data["source"].toString(),
                                     document.data["userId"].toString(),
                                     document.data["categoryId"].toString(),
@@ -88,9 +89,9 @@ class HomeFragment : Fragment() {
                         }
                     }
                 }
-                if (isFirst){
-                    Log.d("assigning ","last doc")
-                    lastDocument = snapshots.documents[snapshots.size()-1]
+                if (isFirst) {
+                    Log.d("assigning ", "last doc")
+                    lastDocument = snapshots.documents[snapshots.size() - 1]
                 }
                 adapter.notifyDataSetChanged()
                 isFirst = false
@@ -99,14 +100,14 @@ class HomeFragment : Fragment() {
     }
 
     private fun loadMoreWallpapers() {
-        progressBar.visibility=View.VISIBLE
-        Log.d("random data:","started")
+        progressBar.visibility = View.VISIBLE
+        Log.d("random data:", "started")
         Firebase.firestore.collection("wallpapers")
             .orderBy(FieldPath.documentId())
             .startAfter(lastDocument!!)
             .limit(10)
             .get()
-            .addOnSuccessListener {snapshots->
+            .addOnSuccessListener { snapshots ->
                 for (dc in snapshots!!) {
 
                     val wallpaper =
@@ -115,6 +116,7 @@ class HomeFragment : Fragment() {
                             dc.data["image"].toString(),
                             dc.data["thumbnail"].toString(),
                             dc.data["isPopular"] as Boolean,
+                            dc.data["isPremium"] as Boolean?,
                             dc.data["source"].toString(),
                             dc.data["userId"].toString(),
                             dc.data["categoryId"].toString(),
@@ -122,17 +124,17 @@ class HomeFragment : Fragment() {
                         )
                     lastDocument = dc
                     wallpaperList.add(wallpaper)
-                    Log.d("random data:",wallpaper.id)
+                    Log.d("random data:", wallpaper.id)
 
                 }
                 adapter.notifyDataSetChanged()
-                progressBar.visibility=View.GONE
-                }
+                progressBar.visibility = View.GONE
+            }
             .addOnFailureListener {
-                Log.e("firebase",it.message!!)
+                Log.e("firebase", it.message!!)
             }
 
-            }
+    }
 
 
 }

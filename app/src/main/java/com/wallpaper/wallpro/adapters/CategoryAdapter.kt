@@ -34,6 +34,7 @@ class CategoryAdapter(val context:Context, private val categoriesList: MutableLi
         imageView.setOnClickListener {
             var intent: Intent = Intent(context, CategoryWallpaperActivity::class.java)
             intent.putExtra("categoryName",categoriesList[position].name)
+            intent.putExtra("categoryId",categoriesList[position].id)
             context.startActivity(intent)
         }
     }

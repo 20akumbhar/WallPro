@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ProgressBar
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.Timestamp
@@ -19,7 +20,7 @@ import com.wallpaper.wallpro.adapters.WallpaperAdapter
 import com.wallpaper.wallpro.models.Wallpaper
 
 class FavoriteFragment : Fragment() {
-
+    private lateinit var progressBar: ProgressBar
     private lateinit var wallpaperList: MutableList<Wallpaper>
     private lateinit var adapter: WallpaperAdapter
     private var lastDocument: DocumentSnapshot? = null
@@ -35,6 +36,7 @@ class FavoriteFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         wallpaperList = mutableListOf<Wallpaper>()
         val recyclerView: RecyclerView = view.findViewById(R.id.favorite_recyclerView)
+        progressBar=view.findViewById(R.id.favorite_progressbar)
         adapter = WallpaperAdapter(requireActivity(), wallpaperList)
         recyclerView.adapter = adapter
         recyclerView.layoutManager = GridLayoutManager(view.context, 2)
@@ -65,6 +67,7 @@ class FavoriteFragment : Fragment() {
                             dc.data["image"].toString(),
                             dc.data["thumbnail"].toString(),
                             false,
+                            dc.data["isPremium"] as Boolean?,
                             "",
                             dc.data["userId"].toString(),
                             "",
@@ -79,6 +82,7 @@ class FavoriteFragment : Fragment() {
     }
 
     private fun loadMoreWallpapers() {
+        progressBar.visibility=View.VISIBLE
         Firebase.firestore.collection("favorites")
             .whereEqualTo("userId", Firebase.auth.currentUser!!.uid)
             .orderBy("timestamp", Query.Direction.DESCENDING)
@@ -93,6 +97,7 @@ class FavoriteFragment : Fragment() {
                             dc.data["image"].toString(),
                             dc.data["thumbnail"].toString(),
                             false,
+                            dc.data["isPremium"] as Boolean?,
                             "",
                             dc.data["userId"].toString(),
                             "",
@@ -103,6 +108,7 @@ class FavoriteFragment : Fragment() {
                     lastDocument = dc
                 }
                 adapter.notifyDataSetChanged()
+                progressBar.visibility=View.GONE
             }
 
     }

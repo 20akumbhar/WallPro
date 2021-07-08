@@ -74,19 +74,11 @@ class FullWallpaperActivity : AppCompatActivity() {
         downloadWallpaperButton = findViewById(R.id.wallapaper_download_button)
         favoriteWallpaperButton = findViewById(R.id.wallpaper_favorite_btn)
 
-        val circularProgressDrawable = CircularProgressDrawable(this)
-        circularProgressDrawable.apply {
-            backgroundColor = R.color.white
-            strokeWidth = 5f
-            centerRadius = 30f
-            start()
-        }
         imageUrl = intent.getStringExtra("url")!!
         thumbnail = intent.getStringExtra("thumbnail")!!
         wallpaperId = intent.getStringExtra("wallpaperId")!!
         Glide.with(this)
             .load(imageUrl)
-            .placeholder(circularProgressDrawable)
             .error(R.drawable.error)
             .timeout(10000)
             .diskCacheStrategy(DiskCacheStrategy.ALL)

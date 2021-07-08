@@ -21,7 +21,7 @@ import com.wallpaper.wallpro.adapters.WallpaperAdapter
 import com.wallpaper.wallpro.models.Wallpaper
 
 class PopularFragment : Fragment() {
-    private var lastDocument: DocumentSnapshot?=null
+    private var lastDocument: DocumentSnapshot? = null
     private lateinit var progressbar: ProgressBar
     private lateinit var wallpaperList: MutableList<Wallpaper>
     private lateinit var adapter: WallpaperAdapter
@@ -47,7 +47,8 @@ class PopularFragment : Fragment() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
                 if (!recyclerView.canScrollVertically(View.SCROLL_INDICATOR_BOTTOM)) {
-                    loadMoreWallpapers()
+                    if (wallpaperList.size > 11)
+                        loadMoreWallpapers()
                 }
             }
         })
@@ -72,6 +73,7 @@ class PopularFragment : Fragment() {
                                     document.data["image"].toString(),
                                     document.data["thumbnail"].toString(),
                                     document.data["isPopular"] as Boolean,
+                                    document.data["isPremium"] as Boolean?,
                                     document.data["source"].toString(),
                                     document.data["userId"].toString(),
                                     document.data["categoryId"].toString(),
@@ -106,9 +108,9 @@ class PopularFragment : Fragment() {
                         }
                     }
                 }
-                if (isFirst){
-                    Log.d("assigning ","last doc")
-                    lastDocument = snapshots.documents[snapshots.size()-1]
+                if (isFirst) {
+                    Log.d("assigning ", "last doc")
+                    lastDocument = snapshots.documents[snapshots.size() - 1]
                 }
                 isFirst = false
                 adapter.notifyDataSetChanged()
@@ -133,6 +135,7 @@ class PopularFragment : Fragment() {
                             dc.data["image"].toString(),
                             dc.data["thumbnail"].toString(),
                             dc.data["isPopular"] as Boolean,
+                            dc.data["isPremium"] as Boolean?,
                             dc.data["source"].toString(),
                             dc.data["userId"].toString(),
                             dc.data["categoryId"].toString(),

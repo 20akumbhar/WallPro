@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -14,7 +13,6 @@ import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.Query
-import com.google.firebase.firestore.QueryDocumentSnapshot
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.wallpaper.wallpro.R
@@ -34,7 +32,6 @@ class LatestFragment : Fragment() {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_latest, container, false)
     }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         wallpaperList = mutableListOf<Wallpaper>()
@@ -48,6 +45,7 @@ class LatestFragment : Fragment() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
                 if (!recyclerView.canScrollVertically(View.SCROLL_INDICATOR_BOTTOM)) {
+                    if (wallpaperList.size > 11)
                     loadMoreWallpapers()
                 }
             }
@@ -70,6 +68,7 @@ class LatestFragment : Fragment() {
                                     document.data["image"].toString(),
                                     document.data["thumbnail"].toString(),
                                     document.data["isPopular"] as Boolean,
+                                    document.data["isPremium"] as Boolean?,
                                     document.data["source"].toString(),
                                     document.data["userId"].toString(),
                                     document.data["categoryId"].toString(),
@@ -115,6 +114,7 @@ class LatestFragment : Fragment() {
                             doc.data["image"].toString(),
                             doc.data["thumbnail"].toString(),
                             doc.data["isPopular"] as Boolean,
+                            doc.data["isPremium"] as Boolean?,
                             doc.data["source"].toString(),
                             doc.data["userId"].toString(),
                             doc.data["categoryId"].toString(),

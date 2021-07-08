@@ -31,7 +31,6 @@ class WallpaperAdapter(val context: Context, private val wallpaperList: MutableL
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WallViewHolder {
-
         val view =
             LayoutInflater.from(parent.context).inflate(R.layout.wallpaper_item, parent, false)
         return WallViewHolder(view)
@@ -39,6 +38,7 @@ class WallpaperAdapter(val context: Context, private val wallpaperList: MutableL
 
     override fun onBindViewHolder(holder: WallViewHolder, position: Int) {
         val imageView = holder.itemView.findViewById<ImageView>(R.id.wall_imageView)
+        val isPremiumImageView = holder.itemView.findViewById<ImageView>(R.id.isPremium_imageView)
         val favoriteButton = holder.itemView.findViewById<ImageButton>(R.id.favorite_button)
         imageView.clipToOutline = true
         val url = wallpaperList[position].thumbnail
@@ -53,35 +53,42 @@ class WallpaperAdapter(val context: Context, private val wallpaperList: MutableL
             intent.putExtra("wallpaperId", wallpaperList[position].id)
             context.startActivity(intent)
         }
-
+        if (wallpaperList[position].isPremium != null && wallpaperList[position].isPremium == true) {
+            isPremiumImageView.visibility = View.VISIBLE
+        } else {
+            isPremiumImageView.visibility = View.GONE
+        }
         var isFavorite = false
         val index = favoriteArray.indexOf(wallpaperList[position].id)
         if (index > -1) {
             favoriteButton.setImageResource(R.drawable.ic_heart_red)
-            isFavorite=true
+            isFavorite = true
         } else {
-            isFavorite=false
+            isFavorite = false
             favoriteButton.setImageResource(R.drawable.ic_heart_outline)
         }
         Log.d("firebase :", "checking array $index")
         favoriteButton.setOnClickListener {
             if (isFavorite) {
                 favoriteButton.setImageResource(R.drawable.ic_heart_outline)
-                var wallId=""
+                var wallId = ""
                 Firebase.firestore.collection("favorites")
-                    .whereEqualTo("userId",Firebase.auth.currentUser!!.uid)
-                    .whereEqualTo("wallpaperId",wallpaperList[position].id)
+                    .whereEqualTo("userId", Firebase.auth.currentUser!!.uid)
+                    .whereEqualTo("wallpaperId", wallpaperList[position].id)
                     .get()
                     .addOnSuccessListener {
-                        for (dc in it){
-                            wallId=dc.id
+                        for (dc in it) {
+                            wallId = dc.id
                         }
                         Firebase.firestore.collection("favorites")
                             .document(wallId)
                             .delete()
                         Firebase.firestore.collection("favoriteArray")
                             .document(Firebase.auth.currentUser!!.uid)
-                            .update("favoriteIds", FieldValue.arrayRemove(wallpaperList[position].id))
+                            .update(
+                                "favoriteIds",
+                                FieldValue.arrayRemove(wallpaperList[position].id)
+                            )
                     }
 
                     .addOnFailureListener { _ ->
@@ -92,7 +99,7 @@ class WallpaperAdapter(val context: Context, private val wallpaperList: MutableL
                             Toast.LENGTH_SHORT
                         ).show()
                     }
-            }else{
+            } else {
                 favoriteButton.setImageResource(R.drawable.ic_heart_red)
                 val wallpaper = hashMapOf(
                     "image" to wallpaperList[position].image,
@@ -107,7 +114,10 @@ class WallpaperAdapter(val context: Context, private val wallpaperList: MutableL
                     ).addOnSuccessListener { documentReference ->
                         Firebase.firestore.collection("favoriteArray")
                             .document(Firebase.auth.currentUser!!.uid)
-                            .update("favoriteIds", FieldValue.arrayUnion(wallpaperList[position].id))
+                            .update(
+                                "favoriteIds",
+                                FieldValue.arrayUnion(wallpaperList[position].id)
+                            )
                         Log.d(
                             "firebase :",
                             "DocumentSnapshot written with ID: ${documentReference.id}"
@@ -128,22 +138,26 @@ class WallpaperAdapter(val context: Context, private val wallpaperList: MutableL
 
     override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
         super.onAttachedToRecyclerView(recyclerView)
-        Firebase.firestore.collection("favoriteArray")
-            .document(Firebase.auth.currentUser!!.uid)
-            .addSnapshotListener { snapshot, e ->
-                if (e != null) {
-                    return@addSnapshotListener
-                }
+        if (Firebase.auth.currentUser != null) {
+            Firebase.firestore.collection("favoriteArray")
+                .document(Firebase.auth.currentUser!!.uid.toString())
+                .addSnapshotListener { snapshot, e ->
+                    if (e != null) {
+                        return@addSnapshotListener
+                    }
 
-                if (snapshot != null && snapshot.exists()) {
-                    Log.d("firebase :", "getting array")
-                    favoriteArray = snapshot["favoriteIds"] as MutableList<String>
-                    notifyDataSetChanged()
+                    if (snapshot != null && snapshot.exists()) {
+                        Log.d("firebase :", "getting array")
+                        favoriteArray = snapshot["favoriteIds"] as MutableList<String>
+                        notifyDataSetChanged()
 
-                } else {
-                    Log.d("firebase :", "Current data: null")
+                    } else {
+                        Log.d("firebase :", "Current data: null")
+                    }
                 }
-            }
+        } else {
+            Log.e("Firebase auth adapter :", "no user")
+        }
     }
 
     override fun getItemCount() = wallpaperList.size
