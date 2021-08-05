@@ -13,7 +13,9 @@
         android:layout_height="wrap_content"
         android:background="@color/black"
         app:theme="@style/ToolbarTheme"
-        app:titleTextColor="@color/white" />
+        app:titleTextColor="@color/white"
+        android:paddingVertical="10dp"
+        app:titleTextAppearance="@style/Toolbar.TitleText"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/category_wallpaper_recyclerView"
@@ -31,4 +33,15 @@
         android:layout_marginVertical="4dp"
         android:layout_marginBottom="120dp"
         android:visibility="gone" />
+    <com.google.android.gms.ads.AdView
+        android:layout_below="@+id/category_wallpaper_progressbar"
+        xmlns:ads="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/category_adView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        ads:adSize="BANNER"
+        ads:adUnitId="ca-app-pub-6159903777753426/7237306390">
+    </com.google.android.gms.ads.AdView>
 </RelativeLayout>

@@ -8,19 +8,19 @@
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="8dp"
+        android:layout_margin="10dp"
         android:background="@color/black"
         app:cardCornerRadius="22dp">
 
         <ImageView
             android:id="@+id/wall_imageView"
             android:layout_width="match_parent"
-            android:layout_height="260dp"
+            android:layout_height="300dp"
             android:contentDescription="Wallpaper Image" />
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="260dp"
+            android:layout_height="300dp"
             android:background="#1A000000">
 
             <ImageView
@@ -41,6 +41,19 @@
                 android:layout_margin="8dp"
                 android:background="@android:color/transparent"
                 android:src="@drawable/ic_heart_outline" />
+        </RelativeLayout>
+        <RelativeLayout
+            android:id="@+id/ad_progressbar"
+            android:visibility="gone"
+            android:gravity="center"
+            android:background="#1E000000"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            >
+            <ProgressBar
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                />
         </RelativeLayout>
     </androidx.cardview.widget.CardView>
 </RelativeLayout>

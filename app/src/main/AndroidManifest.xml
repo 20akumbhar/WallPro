@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.wallpaper.wallpro">
+    package="com.aadevelopers.bestwalls">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -9,21 +9,24 @@
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="28" />
     <uses-permission android:name="android.permission.SET_WALLPAPER" />
-
     <application
+        android:name=".WallPaperApp"
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/newlogo"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@drawable/newlogo"
         android:supportsRtl="true"
         android:theme="@style/Theme.WallPro">
-        <activity android:name=".activities.CategoryWallpaperActivity" />
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="@string/As_App_Id"/>
+        <activity android:name="com.aadevelopers.bestwalls.activities.CategoryWallpaperActivity" />
         <activity
-            android:name=".activities.FullWallpaperActivity"
+            android:name="com.aadevelopers.bestwalls.activities.FullWallpaperActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_wallpaper"
             android:theme="@style/Theme.WallPro.Fullscreen" />
-        <activity android:name=".MainActivity">
+        <activity android:name="com.aadevelopers.bestwalls.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

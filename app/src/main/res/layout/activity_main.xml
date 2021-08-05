@@ -34,6 +34,7 @@
         android:layout_below="@+id/indicatorView"
         app:theme="@style/ToolbarTheme"
         android:background="@color/black"
+        app:titleTextAppearance="@style/Toolbar.TitleText"
         />
 
     <androidx.viewpager2.widget.ViewPager2
